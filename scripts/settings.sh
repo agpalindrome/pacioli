@@ -9,6 +9,22 @@
 # and are managed with tofu — this script never touches them. The two layers
 # compose; GitHub enforces the most restrictive.
 #
+# Array ORDER is not compared. GitHub decides it — an applied rule comes back
+# appended to the end of `rules` rather than in any canonical order, so a rule
+# written anywhere but last in main.json used to report drift immediately after
+# an --apply that had in fact succeeded (observed 2026-08-11 in
+# ojhermann-org/agpalindrome-aws, adding `non_fast_forward` to its `main`
+# ruleset). `bypass_actors` and the nested `required_status_checks` are the same
+# shape, and this repo requires two checks, so the nested case is live exposure
+# here rather than something to guard against later. normalize() now sorts every
+# array on both sides, so main.json may list rules, bypass actors and required
+# status checks in any order.
+#
+# The cost, stated plainly: if GitHub ever gives an array in a ruleset a meaning
+# that depends on its order, this diff will not see a change to it. Nothing in
+# the current schema is known to work that way — rules all apply and none is
+# first-match — but that is reasoning about the schema, not a guarantee from it.
+#
 # Run it yourself: it uses your `gh` auth (repo admin required). It is
 # deliberately owner-run, not wired into CI, so settings never change silently.
 #
@@ -26,7 +42,15 @@ NAME="$(jq -r .name "$RULESET_FILE")"
 
 # The fields that define the ruleset; server-added metadata (id, timestamps,
 # _links, source) is dropped so the diff shows only meaningful drift.
-normalize() { jq -S '{name, target, enforcement, bypass_actors, conditions, rules}'; }
+#
+# `-S` sorts object keys; the walk() sorts array ELEMENTS, at every depth. Both
+# sides of the diff go through this, so the comparison is order-insensitive —
+# see the note on array order in the header for why that is wanted and what it
+# costs.
+normalize() {
+  jq -S '{name, target, enforcement, bypass_actors, conditions, rules}
+         | walk(if type == "array" then sort else . end)'
+}
 
 existing_id() {
   gh api "repos/$REPO/rulesets" \
