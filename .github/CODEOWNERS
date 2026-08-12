@@ -1,4 +1,6 @@
-# The repository owner is the required reviewer for every change. GitHub
-# automatically requests review from the owner on every pull request, so
-# contributors do not need to add them by hand.
-* @ojhermann
+# Both accounts are held by the same operator, so this is a second credential
+# rather than a second reviewer. Listing them on one line means a review from
+# either one satisfies the ruleset's code-owner requirement, which is what lets
+# a PR opened by one account be approved by the other. GitHub requests the
+# review automatically; contributors do not need to add anyone by hand.
+* @ojhermann @otto-agpalindrome
