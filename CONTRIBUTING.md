@@ -102,9 +102,9 @@ conversation resolution, and merge queue — as a version-controlled **GitHub
 ruleset** in [`.github/rulesets/main.json`](.github/rulesets/main.json).
 Maintainers reconcile it with [`scripts/settings.sh`](scripts/settings.sh)
 (`--check` to diff live vs. committed, `--apply` to push it). Org-wide rules are
-managed separately in tofu; these two layers compose. Merging a maintainer's own
-PR (which can't be self-approved) uses [`scripts/merge.sh`](scripts/merge.sh)
-`<PR#>` — a ruleset-bypass squash-merge that `gh pr merge` cannot do.
+managed separately in tofu; these two layers compose. Nothing bypasses the
+ruleset: every PR, a maintainer's included, lands through the ordinary path in
+[Landing it](#landing-it).
 
 ### House style
 
@@ -186,14 +186,19 @@ Open the PR as a **draft** while the increment is in progress; mark it ready onc
 the checklist above is done. For it to become mergeable:
 
 - the required checks — **`nix flake check`** and **`lake build`** — pass;
-- the repository owner (**@ojhermann**) has **approved** — requested
-  automatically via [`CODEOWNERS`](.github/CODEOWNERS), so you needn't add them
-  by hand;
+- a **code owner has approved** — [`CODEOWNERS`](.github/CODEOWNERS) names
+  **@ojhermann** and **@otto-agpalindrome**, and a review from either satisfies
+  the rule. GitHub requests it automatically, so you needn't add anyone by hand.
+  GitHub blocks self-approval, so the approval comes from whichever of the two
+  accounts did not open the PR;
 - **every review conversation is resolved** — no open comments.
 
-**Only the owner merges.** Approved, green PRs go through a **merge queue**: the
-PR is re-tested against the latest `main` before it lands, so a merge can never
-break `main`. Merges are **squash → delete branch**, keeping history linear.
+**Only the owner merges**, with `gh pr merge <PR#> --squash`. That adds the PR
+to a **merge queue**: it is re-tested against the latest `main` before it lands,
+so a merge can never break `main`. Merges are **squash → delete branch**,
+keeping history linear. (`gh`'s own help says a merge strategy is not required
+when the target branch has a queue; the ruleset permits squash only, so the
+outcome is the same with or without the flag.)
 
 ---
 
