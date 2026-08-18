@@ -97,9 +97,9 @@ issue #37.
 
 ### Repository settings as code
 
-This repo governs its own merge policy — the required checks, owner review,
-conversation resolution, and merge queue — as a version-controlled **GitHub
-ruleset** in [`.github/rulesets/main.json`](.github/rulesets/main.json).
+This repo governs its own merge policy — the required checks, owner review and
+conversation resolution — as a version-controlled **GitHub ruleset** in
+[`.github/rulesets/main.json`](.github/rulesets/main.json).
 Maintainers reconcile it with [`scripts/settings.sh`](scripts/settings.sh)
 (`--check` to diff live vs. committed, `--apply` to push it). Org-wide rules are
 managed separately in tofu; these two layers compose. Nothing bypasses the
@@ -193,12 +193,20 @@ the checklist above is done. For it to become mergeable:
   accounts did not open the PR;
 - **every review conversation is resolved** — no open comments.
 
-**Only the owner merges**, with `gh pr merge <PR#> --squash`. That adds the PR
-to a **merge queue**: it is re-tested against the latest `main` before it lands,
-so a merge can never break `main`. Merges are **squash → delete branch**,
-keeping history linear. (`gh`'s own help says a merge strategy is not required
-when the target branch has a queue; the ruleset permits squash only, so the
-outcome is the same with or without the flag.)
+**Only the owner merges**, with
+`gh pr merge <PR#> --squash --body-file <file>`. Merges are **squash**, keeping
+history linear; the ruleset permits no other method. `--body-file` composes the
+squash commit body at merge time, which is what lets it carry a `Reviewed-by`
+trailer naming the account that approved — the branch commits are written before
+the review exists, so they cannot.
+
+**The merge queue was removed on 2026-08-18**, for that reason. A queued merge
+goes through GitHub's `enqueuePullRequest` mutation, which accepts no commit
+body, so the trailer had nowhere to go. The cost, which the owner accepted: a
+pull request is no longer re-tested against the latest `main` as it lands, and
+`strict_required_status_checks_policy` is `false`, so a branch can merge green
+against a base that has since moved. Rebase on `main` before asking for a merge
+if the branch is old.
 
 ---
 
