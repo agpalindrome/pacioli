@@ -84,7 +84,8 @@ The same checks run **locally and in CI** — `nix flake check` is the single
 source of truth.
 
 - **On commit** (fast hooks): `nixfmt`, `deadnix`, `statix` for Nix;
-  `markdownlint` for docs; and whitespace/EOF/merge-conflict/YAML hygiene.
+  `markdownlint` and `vale` for docs; and whitespace/EOF/merge-conflict/YAML
+  hygiene.
 - **In CI** (every PR, and `main`): two required jobs — **`nix flake check`**
   (those hooks) and **`lake build`** (the full Lean compile plus the sorry
   check, via [`scripts/lean-check.sh`](scripts/lean-check.sh)). A red run on
@@ -111,6 +112,16 @@ ruleset: every PR, a maintainer's included, lands through the ordinary path in
 - **Markdown** wraps prose at **80 columns** (`MD013`); tables and code/Mermaid
   blocks are exempt. Table pipes must be aligned (`MD060`) — `prettier` does
   this.
+- **Prose** passes `vale` against the house style shared across the
+  maintainer's repos, run by
+  [`scripts/prose-check.sh`](scripts/prose-check.sh) on commit and again under
+  `nix flake check`. Errors block the build; warnings are advice you weigh and
+  may leave alone. Every tracked Markdown file is in scope.
+- **The vale rules are vendored**, not authored here: `.vale.ini` and
+  `.vale/styles` arrive from the maintainer's shared set. Edit them at the
+  source, since a local edit reads as drift on the next sync and is lost — and
+  a rule that fights writing which is correct as it stands is a finding to
+  raise there, not something to silence here.
 
 ### Development conventions
 

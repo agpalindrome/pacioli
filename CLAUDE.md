@@ -17,7 +17,7 @@ and no entity IDs / surrogate keys / entry↔transaction foreign-key
 associations, in the core.** Don't add an "applied" or "convenience" surface to
 these modules; that belongs downstream. Identity and persistence are downstream
 concerns: an ID reads in no mechanical theorem, and the entry↔transaction
-relation is modeled by containment (`Transaction.entries`), not a key.
+relation is modelled by containment (`Transaction.entries`), not a key.
 Decision + rationale: issues **#41** (applied delivery) and **#45**
 (identity/association), plus the `pacioli-applied-layer-architecture` memory.
 
@@ -52,7 +52,7 @@ Decision + rationale: issues **#41** (applied delivery) and **#45**
   design, not incidental — changing them is an owner decision.
 - Do **not** add entity IDs / surrogate keys to `Entry` or `Transaction`, or an
   entry↔transaction foreign-key field: identity and persistence are downstream
-  (issue #45), and the association is already modeled by containment
+  (issue #45), and the association is already modelled by containment
   (`Transaction.entries`). Reopen only if a genuine *mechanical* law needs entry
   identity (e.g. reversal referencing a prior entry), added at the point of use.
 - Treat the **pinned** files as sensitive — `lean-toolchain`,

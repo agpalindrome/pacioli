@@ -23,6 +23,9 @@
       # will return with the mechanics.)
       hooksFor =
         system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         git-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
@@ -51,6 +54,38 @@
                 MD040 = false; # fenced code language not required (ASCII trees)
                 MD025.front_matter_title = ""; # don't treat YAML front-matter title as an H1
               };
+            };
+
+            # vale — the word-level house style, vendored into `.vale/styles`
+            # from the owner's shared `~/.claude/vale` by that repo's
+            # `scripts/sync-vale.sh`. Rules are edited there, never here: a
+            # local edit reads as drift on the next sync and is lost.
+            #
+            # `scripts/prose-check.sh` owns the scope, the `--no-global` flag
+            # and the empty-file-list guard, so the commit hook and CI run one
+            # gate rather than two that can disagree. This entry only puts the
+            # flake-pinned `vale` on its PATH. `pass_filenames = false` because
+            # the script selects its own inputs; `files` still confines the hook
+            # to changes that touch Markdown.
+            prose = {
+              enable = true;
+              name = "vale";
+              description = "authored prose passes the shared house style";
+              entry = toString (
+                pkgs.writeShellScript "pacioli-prose-check" ''
+                  export PATH=${
+                    nixpkgs.lib.makeBinPath [
+                      pkgs.bash
+                      pkgs.coreutils
+                      pkgs.findutils
+                      pkgs.vale
+                    ]
+                  }:$PATH
+                  exec ./scripts/prose-check.sh
+                ''
+              );
+              files = "\\.md$";
+              pass_filenames = false;
             };
           };
         };
