@@ -57,5 +57,5 @@ type; that is the whole design.
 
 `Transaction` makes imbalance unrepresentable; `Aggregation` shows the totals
 compose as a homomorphism; and `Classification` combines the two — the
-accounting equation is just the trial-balance identity, re-partitioned by the
+accounting equation is the trial-balance identity, re-partitioned by the
 classification. Each layer is a small, fully-proven increment.

@@ -69,7 +69,7 @@ it clean is the whole design:
 > are.
 
 Illustratively: a policy for how to recognize revenue over a contract is
-judgment; from it a recognition _schedule_ is produced — just amounts and
+judgment; from it a recognition _schedule_ is produced — only amounts and
 periods; and the kernel's job is to prove the resulting postings satisfy the
 mechanical properties it is responsible for (that they balance). The intent is
 that this seam be real — a typed, checkable artifact — rather than a human

@@ -10,9 +10,10 @@ guide describes the collaboration model and workflow; the Lean- and OKF-specific
 conventions return to it alongside the code they govern (the first are under
 "Development conventions" below).
 
-Pacioli values **correctness, comprehensibility, and robust discussion** over
-speed. There are no deadlines. A change that is small, well-explained, and
-verified is always preferred to a large one that is none of those.
+Pacioli values **correctness, comprehensibility, and discussion that
+challenges a claim** over speed. There are no deadlines. A change that is
+small, well-explained, and verified is always preferred to a large one that is
+none of those.
 
 ---
 
@@ -84,7 +85,8 @@ The same checks run **locally and in CI** — `nix flake check` is the single
 source of truth.
 
 - **On commit** (fast hooks): `nixfmt`, `deadnix`, `statix` for Nix;
-  `markdownlint` for docs; and whitespace/EOF/merge-conflict/YAML hygiene.
+  `markdownlint` and `vale` for docs; and whitespace/EOF/merge-conflict/YAML
+  hygiene.
 - **In CI** (every PR, and `main`): two required jobs — **`nix flake check`**
   (those hooks) and **`lake build`** (the full Lean compile plus the sorry
   check, via [`scripts/lean-check.sh`](scripts/lean-check.sh)). A red run on
@@ -109,8 +111,17 @@ ruleset: every PR, a maintainer's included, lands through the ordinary path in
 ### House style
 
 - **Markdown** wraps prose at **80 columns** (`MD013`); tables and code/Mermaid
-  blocks are exempt. Table pipes must be aligned (`MD060`) — `prettier` does
-  this.
+  blocks are exempt. `prettier` aligns table pipes to satisfy `MD060`.
+- **Prose** passes `vale` against the house style shared across the
+  maintainer's repos, run by
+  [`scripts/prose-check.sh`](scripts/prose-check.sh) on commit and again under
+  `nix flake check`. Errors block the build; warnings are advice you weigh and
+  may leave alone. Every tracked Markdown file is in scope.
+- **The vale rules are vendored**, not authored here: `.vale.ini` and
+  `.vale/styles` arrive from the maintainer's shared set. Edit them at the
+  source, since a local edit reads as drift on the next sync and is lost — and
+  a rule that fights writing which is correct as it stands is a finding to
+  raise there, not something to silence here.
 
 ### Development conventions
 
@@ -214,4 +225,4 @@ if the branch is old.
 
 Open a [GitHub issue](https://github.com/ojhermann-org/pacioli/issues) — for a
 concept proposal, a kernel idea, or a "which side of the seam does this belong
-on?" discussion. Robust discussion is welcome and is how the seam stays clean.
+on?" discussion. Disagreement is welcome and is how the seam stays clean.
