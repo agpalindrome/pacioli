@@ -75,13 +75,18 @@
                 pkgs.writeShellScript "pacioli-prose-check" ''
                   export PATH=${
                     nixpkgs.lib.makeBinPath [
-                      pkgs.bash
                       pkgs.coreutils
                       pkgs.findutils
                       pkgs.vale
                     ]
                   }:$PATH
-                  exec ./scripts/prose-check.sh
+                  # The script's own `#!/usr/bin/env bash` is right for a
+                  # contributor running it by hand, and unusable here: the Linux
+                  # build sandbox carries no `/usr/bin/env`, so the hook exits
+                  # 126 without running. Naming the interpreter serves both
+                  # callers. The Darwin sandbox does expose `/usr/bin/env`, so
+                  # this passed locally and failed in CI (measured 2026-08-20).
+                  exec ${pkgs.bash}/bin/bash ./scripts/prose-check.sh
                 ''
               );
               files = "\\.md$";
